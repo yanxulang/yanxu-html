@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/yanxulang/yanxu-html/actions/workflows/ci.yml/badge.svg)](https://github.com/yanxulang/yanxu-html/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Yanxu 1.1.4-A](https://img.shields.io/badge/言序-1.1.4--A-b33.svg)](https://github.com/yanxulang/yanxu/releases/tag/v1.1.4-A)
+[![Yanxu 1.1.5](https://img.shields.io/badge/言序-1.1.5-b33.svg)](https://github.com/yanxulang/yanxu)
 
 `yanxu-html` 是言序的默认安全 HTML 节点、元素、属性、文档与组件基础库。它把“普通内容”和“已经受信任的原始 HTML”分成不同类型，让自动转义成为默认路径，让绕过转义成为需要显式表达的决定。
 
@@ -26,10 +26,10 @@
 使用官方包管理器[言包](https://github.com/yanxulang/yanbao)添加 Git 依赖：
 
 ```sh
-yanbao --manifest-path . add yanxu-html \
+yanbao add yanxu-html --manifest-path . \
   --git https://github.com/yanxulang/yanxu-html.git \
   --rev main --version '^0.1'
-yanbao --manifest-path . install
+yanbao install --manifest-path .
 ```
 
 言包会把精确提交与内容校验写入`言序.lock`；项目不需要复制源码或维护 submodule。
@@ -93,6 +93,6 @@ yanxu-language-new/target/debug/yanxu 执 yanxu-html/examples/组件.yx
 
 ## 状态与范围
 
-当前版本是 `0.1.0`。这一版本专注服务端 HTML 字符串构建，不包含 HTML 解析、DOM、模板文件编译、CSS 清洗或浏览器运行时。版本规划与跨库依赖关系见[言序 Web 开发总览](https://docs.yanxu.dev/web/)。
+当前版本是 `0.1.1`。这一版本专注服务端 HTML 字符串构建，不包含 HTML 解析、DOM、模板文件编译、CSS 清洗或浏览器运行时。版本规划与跨库依赖关系见[言序 Web 开发总览](https://docs.yanxu.dev/web/)。
 
 按 [MIT License](LICENSE) 发布。
