@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/yanxulang/yanxu-html/actions/workflows/ci.yml/badge.svg)](https://github.com/yanxulang/yanxu-html/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Yanxu main](https://img.shields.io/badge/言序-main-b33.svg)](https://github.com/yanxulang/yanxu)
+[![Yanxu 1.1.4-A](https://img.shields.io/badge/言序-1.1.4--A-b33.svg)](https://github.com/yanxulang/yanxu/releases/tag/v1.1.4-A)
 
 `yanxu-html` 是言序的默认安全 HTML 节点、元素、属性、文档与组件基础库。它把“普通内容”和“已经受信任的原始 HTML”分成不同类型，让自动转义成为默认路径，让绕过转义成为需要显式表达的决定。
 
