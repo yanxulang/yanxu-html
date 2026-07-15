@@ -23,21 +23,18 @@
 
 ## 快速开始
 
-使用官方包管理器[言包](https://github.com/yanxulang/yanbao)添加 Git 依赖：
+使用官方包管理器[言包](https://github.com/yanxulang/yanbao)添加依赖：
 
 ```sh
-yanbao add yanxu-html --manifest-path . \
-  --git https://github.com/yanxulang/yanxu-html.git \
-  --rev main --version '^0.1'
-yanbao install --manifest-path .
+yanbao add html --version '^0.1'
 ```
 
-言包会把精确提交与内容校验写入`言序.lock`；项目不需要复制源码或维护 submodule。
+`html`会自动解析为 GitHub 上的`yanxulang/yanxu-html`。言包把精确提交与内容校验写入`言序.lock`；项目不需要复制源码或维护 submodule。
 
 然后创建页面：
 
 ```yanxu
-引「包:yanxu-html」为 HTML；
+引「包:html」为 HTML；
 
 定 页面 为 HTML.文档（
     HTML.元素（「html」，【HTML.属性（「lang」，「zh-CN」）】，【

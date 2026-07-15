@@ -4,14 +4,12 @@
 
 ## 1. 添加依赖
 
-使用言包写入 Git 依赖并生成锁文件：
+使用言包添加官方 GitHub 包并生成锁文件：
 
 ```sh
-yanbao add yanxu-html --manifest-path . \
-  --git https://github.com/yanxulang/yanxu-html.git \
-  --rev main --version '^0.1'
-yanbao install --manifest-path .
-yanbao run --manifest-path .
+yanbao add html --version '^0.1'
+yanbao install
+yanbao run
 ```
 
 清单保留可读的 Git 来源与版本要求，`言序.lock`固定实际提交和 SHA-256 内容校验。日常恢复使用`install`；需要重新选择`main`的新提交时显式执行`yanbao update`。
@@ -19,7 +17,7 @@ yanbao run --manifest-path .
 ## 2. 从文字节点开始
 
 ```yanxu
-引「包:yanxu-html」为 HTML；
+引「包:html」为 HTML；
 
 定 标题：文 为「<言序与 Web>」；
 定 节点 为 HTML.元素（「h1」，【】，【HTML.文字（标题）】）；
