@@ -1,22 +1,22 @@
 lock_version = 2
-manifest_checksum = "d3dc54b8d236b8a8f236c4c367ec19e558a275eb740f3d94083cb79e88759767"
+manifest_checksum = "5ad56c393810573261e4c15b8a329209fe7e73ac71f217c145838e22545e98cd"
 target = "aarch64-apple-darwin"
 generator = "1.1.12"
 
 [root_dependencies]
-yanxu-html = "yanxu-html@0.1.1#a5b4b144f221-1bb9776fe2faa2f8"
+"言页" = "言页@1.0.0#a5b4b144f221-c4335ec2dc93fb71"
 
 [root_dev_dependencies]
 
 [[package]]
-id = "yanxu-html@0.1.1#a5b4b144f221-1bb9776fe2faa2f8"
-name = "yanxu-html"
-version = "0.1.1"
+id = "言页@1.0.0#a5b4b144f221-c4335ec2dc93fb71"
+name = "言页"
+version = "1.0.0"
 source = "path:.."
-checksum = "1bb9776fe2faa2f858a1062c019f335b0286e3ca41b181c90f52c5a947a1bf3d"
+checksum = "c4335ec2dc93fb71617795c959a2a06c9b01e1c1734e0f3eee2ba141f5b07d4d"
 entry = "src/言序HTML.yx"
 target = "aarch64-apple-darwin"
-minimum_yanxu = ">=1.1.5"
+minimum_yanxu = ">=1.1.12"
 
 [package.dependencies]
 

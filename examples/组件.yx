@@ -1,4 +1,4 @@
-引「包:yanxu-html」为 HTML；
+引「包:言页」为 HTML；
 
 法 构建欢迎卡（） 则
     归 HTML.元素（「section」，【HTML.属性（「class」，「welcome」）】，【HTML.元素（「h1」，【】，【HTML.文字（「欢迎，言序」）】），HTML.元素（「a」，【HTML.属性（「href」，「/start」）】，【HTML.文字（「开始」）】）】）；

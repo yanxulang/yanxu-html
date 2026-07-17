@@ -128,14 +128,15 @@ jobs:
           "$yanxu" 行 "$RUNNER_TEMP/yanxu-html-example.yxb" > "$RUNNER_TEMP/component-release.txt"
           cmp "$RUNNER_TEMP/component-source.txt" "$RUNNER_TEMP/component-release.txt"
 
-          "$yanxu" --max-steps 10000000 字节 benchmarks/安全渲染性能.yx -- 50 > "$RUNNER_TEMP/benchmark-source.json"
-          "$yanxu" --max-steps 10000000 行 "$RUNNER_TEMP/yanxu-html-benchmark.yxb" -- 50 > "$RUNNER_TEMP/benchmark-release.json"
-          for report in "$RUNNER_TEMP/benchmark-source.json" "$RUNNER_TEMP/benchmark-release.json"; do
-            jq -e '.["轮数"] == 50 and .["文章数"] == 20 and .["完整字符"] == 145600 and .["增量字符"] == 145600 and .["增量片段"] == 19050' "$report"
-            jq -S '{rounds: .["轮数"], articles: .["文章数"], full: .["完整字符"], incremental: .["增量字符"], fragments: .["增量片段"]}' \
-              "$report" > "$report.stable"
+          "$yanxu" --max-steps 10000000 字节 benchmarks/安全渲染性能.yx -- 50 > "$RUNNER_TEMP/benchmark-source.txt"
+          "$yanxu" --max-steps 10000000 行 "$RUNNER_TEMP/yanxu-html-benchmark.yxb" -- 50 > "$RUNNER_TEMP/benchmark-release.txt"
+          for report in "$RUNNER_TEMP/benchmark-source.txt" "$RUNNER_TEMP/benchmark-release.txt"; do
+            test "$(wc -l < "$report")" -eq 1
+            grep -Eq '^\{.*\}$' "$report"
+            for field in '轮数：50' '文章数：20' '完整字符：145600' '增量字符：145600' '增量片段：19050'; do
+              grep -Fq "$field" "$report"
+            done
           done
-          cmp "$RUNNER_TEMP/benchmark-source.json.stable" "$RUNNER_TEMP/benchmark-release.json.stable"
 
           unexpected="$(git diff --name-only -- . ':(exclude)言序.lock' ':(exclude,glob)**/言序.lock')"
           test -z "$unexpected"
