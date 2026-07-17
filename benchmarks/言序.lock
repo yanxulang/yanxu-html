@@ -4,16 +4,16 @@ target = "aarch64-apple-darwin"
 generator = "1.1.12"
 
 [root_dependencies]
-yanxu-html = "yanxu-html@0.1.1#a5b4b144f221-2ca8bc11470da462"
+yanxu-html = "yanxu-html@0.1.1#a5b4b144f221-1bb9776fe2faa2f8"
 
 [root_dev_dependencies]
 
 [[package]]
-id = "yanxu-html@0.1.1#a5b4b144f221-2ca8bc11470da462"
+id = "yanxu-html@0.1.1#a5b4b144f221-1bb9776fe2faa2f8"
 name = "yanxu-html"
 version = "0.1.1"
 source = "path:.."
-checksum = "2ca8bc11470da462235fb5de13431c08286a5e310b1b558bf2f3adc73cc620fd"
+checksum = "1bb9776fe2faa2f858a1062c019f335b0286e3ca41b181c90f52c5a947a1bf3d"
 entry = "src/言序HTML.yx"
 target = "aarch64-apple-darwin"
 minimum_yanxu = ">=1.1.5"

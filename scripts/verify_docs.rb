@@ -53,6 +53,11 @@ missing_names = public_names.reject { |name| api_document.include?("`#{name}") }
 abort "API 文档缺少：#{missing_names.join('、')}" unless missing_names.empty?
 
 markdown_files = root.glob("**/*.md")
+unbalanced_fences = markdown_files.reject { |file| file.read.lines.count { |line| line.start_with?("```") }.even? }
+unless unbalanced_fences.empty?
+  abort "代码围栏不成对：#{unbalanced_fences.map { |file| file.relative_path_from(root) }.join('、')}"
+end
+
 broken_links = []
 markdown_files.each do |file|
   file.read.scan(/\[[^\]]+\]\(([^)]+)\)/).flatten.each do |link|

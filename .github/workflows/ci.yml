@@ -8,19 +8,162 @@ permissions:
   contents: read
 
 jobs:
-  test:
+  quality:
+    name: 安全渲染与稳定版质量门禁
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          fetch-depth: 0
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
         with:
           repository: YanXuLang/yanxu
-          path: .yanxu
-          ref: 746490ad6e6875fe82451a0f1ed1b0fc00cb8a26 # yanxu 1.1.5
-      - name: Build Yanxu 1.1.5
-        run: cargo build --manifest-path .yanxu/Cargo.toml --locked --bin yanxu
-      - name: Check and test
+          path: .yanxu/toolchain
+          ref: 0e66486b4723ba96ed0ee67a43f301a03da062d0 # yanxu 1.1.12
+      - name: 构建言序 1.1.12
+        run: cargo build --manifest-path .yanxu/toolchain/Cargo.toml --locked --release --bin yanxu
+      - name: 清单、版本、权限与项目结构
+        shell: sh
         run: |
-          .yanxu/target/debug/yanxu 查 src/言序HTML.yx
-          .yanxu/target/debug/yanxu 试 tests --json
-          .yanxu/target/debug/yanxu compile . -o "$RUNNER_TEMP/yanxu-html.yxb"
+          set -eu
+          yanxu="$GITHUB_WORKSPACE/.yanxu/toolchain/target/release/yanxu"
+          "$yanxu" 包 .
+
+          for file in README.md LICENSE CHANGELOG.md COMPATIBILITY.md SECURITY.md CONTRIBUTING.md \
+            docs/API.md docs/GUIDE.md docs/ARCHITECTURE.md docs/MIGRATION.md \
+            docs/PERFORMANCE.md docs/SECURITY_MODEL.md docs/RELEASE_NOTES_1.0.0.md; do
+            test -s "$file"
+          done
+
+          test "$(find src -type f -name '*.yx' | wc -l)" -eq 1
+          test "$(find tests -type f -name '*.yx' | wc -l)" -eq 7
+          test "$(find examples -type f -name '*.yx' | wc -l)" -eq 2
+          test "$(find benchmarks -type f -name '*.yx' | wc -l)" -eq 1
+          test "$(find src tests examples benchmarks -type f -name '*.yx' | wc -l)" -eq 11
+
+          for manifest in 言序.toml examples/言序.toml benchmarks/言序.toml; do
+            version="$(sed -n 's/^版本 = "\([^"]*\)"$/\1/p' "$manifest" | head -n 1)"
+            test "$version" = "1.0.0"
+            grep -Fq '言序 = ">=1.1.12"' "$manifest"
+            grep -Fq '许可 = "MIT"' "$manifest"
+            grep -Fq '文件 = []' "$manifest"
+            grep -Fq '网络 = []' "$manifest"
+            grep -Fq 'TCP监听 = []' "$manifest"
+            grep -Fq 'UDP绑定 = []' "$manifest"
+            grep -Fq '环境 = []' "$manifest"
+            grep -Fq '进程 = false' "$manifest"
+            grep -Fq '原生扩展 = false' "$manifest"
+          done
+
+          grep -Fq '名称 = "言页"' 言序.toml
+          grep -Fq '公 定 版本：文 为 「1.0.0」；' src/言序HTML.yx
+          grep -Fq '言页 = { 路径 = "..", 版 = "^1.0" }' examples/言序.toml
+          grep -Fq '言页 = { 路径 = "..", 版 = "^1.0" }' benchmarks/言序.toml
+          grep -Fq '引「包:言页」为 HTML；' examples/组件.yx
+          grep -Fq '引「包:言页」为 HTML；' examples/增量页面.yx
+          grep -Fq '引「包:言页」为 HTML；' benchmarks/安全渲染性能.yx
+          grep -Fq '"言页" = "言页@1.0.0#' examples/言序.lock
+          grep -Fq '"言页" = "言页@1.0.0#' benchmarks/言序.lock
+          ruby -e 'text = File.read("言序.toml"); body = text[/^\[依赖\]\n(.*?)(?=^\[|\z)/m, 1]; abort "根包不得含第三方依赖" unless body&.strip == ""'
+      - name: 格式、文档与机器 API
+        shell: sh
+        run: |
+          set -eu
+          yanxu="$GITHUB_WORKSPACE/.yanxu/toolchain/target/release/yanxu"
+          source_list="$RUNNER_TEMP/yanxu-html-sources.txt"
+          find src tests examples benchmarks -type f -name '*.yx' -print | sort > "$source_list"
+          test "$(wc -l < "$source_list")" -eq 11
+          while IFS= read -r file; do
+            "$yanxu" 格 "$file" | cmp - "$file"
+            "$yanxu" 查 "$file"
+          done < "$source_list"
+
+          "$yanxu" 文 --json src/言序HTML.yx "$RUNNER_TEMP/api.json"
+          ruby scripts/verify_docs.rb "$RUNNER_TEMP/api.json" .
+
+          for heading in '# 言页' '## 主要能力' '## 安装' '## 五分钟示例' \
+            '## 错误处理' '## 安全边界' '## 权限与兼容性' '## 已知限制' '## 文档'; do
+            grep -Fx "$heading" README.md
+          done
+          grep -Fq '[MIT 许可证](LICENSE)' README.md
+      - name: 锁文件、规格、示例、基准与 Release 构建
+        shell: bash
+        run: |
+          set -euo pipefail
+          yanxu="$GITHUB_WORKSPACE/.yanxu/toolchain/target/release/yanxu"
+          export YANXU_CACHE="$RUNNER_TEMP/yanxu-cache"
+
+          "$yanxu" 包 更新 .
+          "$yanxu" 包 锁 --离线 .
+          "$yanxu" 包 更新 examples
+          "$yanxu" 包 锁 --离线 examples
+          "$yanxu" 包 更新 benchmarks
+          "$yanxu" 包 锁 --离线 benchmarks
+
+          "$yanxu" 试 tests --json > "$RUNNER_TEMP/tests.json"
+          jq -e '.schema_version == 1 and .summary.total == 7 and .summary.passed == 7 and .summary.failed == 0 and .summary.timedOut == 0' \
+            "$RUNNER_TEMP/tests.json"
+
+          "$yanxu" 字节 examples/组件.yx > "$RUNNER_TEMP/component-source.txt"
+          grep -Fx '<!doctype html>' "$RUNNER_TEMP/component-source.txt"
+          grep -Fx '<section class="welcome"><h1>欢迎，言序</h1><a href="/start">开始</a></section>' \
+            "$RUNNER_TEMP/component-source.txt"
+          test "$(wc -l < "$RUNNER_TEMP/component-source.txt")" -eq 2
+
+          "$yanxu" 字节 examples/增量页面.yx > "$RUNNER_TEMP/incremental-source.txt"
+          grep -Fx '<html lang="zh-CN"><body><h1>增量渲染 &lt;示例&gt;</h1>普通内容自动转义：&amp;<span class="badge">可信扩展</span></body></html>' \
+            "$RUNNER_TEMP/incremental-source.txt"
+          tail -n 1 "$RUNNER_TEMP/incremental-source.txt" > "$RUNNER_TEMP/incremental-stats.json"
+          jq -e '.["字符数"] == 124 and .["片段数"] == 16 and .["节点数"] == 8' \
+            "$RUNNER_TEMP/incremental-stats.json"
+
+          "$yanxu" 编 . --release -o "$RUNNER_TEMP/yanxu-html.yxb"
+          "$yanxu" 编 examples --release -o "$RUNNER_TEMP/yanxu-html-example.yxb"
+          "$yanxu" 编 benchmarks --release -o "$RUNNER_TEMP/yanxu-html-benchmark.yxb"
+          test -s "$RUNNER_TEMP/yanxu-html.yxb"
+          test -s "$RUNNER_TEMP/yanxu-html-example.yxb"
+          test -s "$RUNNER_TEMP/yanxu-html-benchmark.yxb"
+
+          "$yanxu" 行 "$RUNNER_TEMP/yanxu-html-example.yxb" > "$RUNNER_TEMP/component-release.txt"
+          cmp "$RUNNER_TEMP/component-source.txt" "$RUNNER_TEMP/component-release.txt"
+
+          "$yanxu" --max-steps 10000000 字节 benchmarks/安全渲染性能.yx -- 50 > "$RUNNER_TEMP/benchmark-source.json"
+          "$yanxu" --max-steps 10000000 行 "$RUNNER_TEMP/yanxu-html-benchmark.yxb" -- 50 > "$RUNNER_TEMP/benchmark-release.json"
+          for report in "$RUNNER_TEMP/benchmark-source.json" "$RUNNER_TEMP/benchmark-release.json"; do
+            jq -e '.["轮数"] == 50 and .["文章数"] == 20 and .["完整字符"] == 145600 and .["增量字符"] == 145600 and .["增量片段"] == 19050' "$report"
+            jq -S '{rounds: .["轮数"], articles: .["文章数"], full: .["完整字符"], incremental: .["增量字符"], fragments: .["增量片段"]}' \
+              "$report" > "$report.stable"
+          done
+          cmp "$RUNNER_TEMP/benchmark-source.json.stable" "$RUNNER_TEMP/benchmark-release.json.stable"
+
+          unexpected="$(git diff --name-only -- . ':(exclude)言序.lock' ':(exclude,glob)**/言序.lock')"
+          test -z "$unexpected"
+          test -z "$(git ls-files --others --exclude-standard)"
+
+  metadata:
+    name: 新增元数据门禁
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          fetch-depth: 0
+      - name: 检查分支、PR 与新增提交
+        shell: sh
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          HEAD_BRANCH: ${{ github.head_ref || github.ref_name }}
+          PR_TITLE: ${{ github.event.pull_request.title || '' }}
+          PR_BODY: ${{ github.event.pull_request.body || '' }}
+        run: |
+          set -eu
+          if printf '%s\n%s\n%s\n' "$HEAD_BRANCH" "$PR_TITLE" "$PR_BODY" | grep -Eiq 'co[d]ex'; then
+            echo '分支或 PR 元数据包含禁用词'
+            exit 1
+          fi
+          if test -n "$BASE_SHA" && git cat-file -e "$BASE_SHA^{commit}" 2>/dev/null; then
+            if git log "$BASE_SHA"..HEAD --format='%H%n%an%n%ae%n%cn%n%ce%n%s%n%b' | grep -Eiq 'co[d]ex'; then
+              echo '新增提交元数据包含禁用词'
+              exit 1
+            fi
+          fi
