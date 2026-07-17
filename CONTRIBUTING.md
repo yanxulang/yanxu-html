@@ -4,7 +4,7 @@
 
 - 言序 1.1.12；
 - Git；
-- Ruby 3.x（运行文档覆盖门禁）；
+- 带 JSON 与 Pathname 标准库的 Ruby（运行文档覆盖门禁）；
 - 不需要数据库、网络服务或原生工具链。
 
 不要把令牌、Cookie、私有地址或真实用户 HTML 样本提交到仓库。安全问题请先按 [SECURITY.md](SECURITY.md)私下报告。
@@ -32,6 +32,8 @@ yanxu 包 锁 --离线 benchmarks
 find src tests examples benchmarks -name '*.yx' -exec yanxu 格 --写 {} \;
 find src tests examples benchmarks -name '*.yx' -exec yanxu 查 {} \;
 yanxu 试 tests --json
+yanxu 文 --json src/言序HTML.yx /tmp/yanxu-html-api.json
+ruby scripts/verify_docs.rb /tmp/yanxu-html-api.json .
 ```
 
 示例与 Release 构建：
