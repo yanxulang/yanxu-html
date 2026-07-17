@@ -1,7 +1,7 @@
 lock_version = 2
-manifest_checksum = "7bb0e70cbb456f2700560a48e26ad969dcbe86e035523c3ddef43c75ae0bfb0f"
+manifest_checksum = "8ee05281e4ebc8a2716cff1696300906a1bd4ddb1407a2b21d10d2d519ac4d64"
 target = "aarch64-apple-darwin"
-generator = "1.1.6"
+generator = "1.1.12"
 package = []
 
 [root_dependencies]
