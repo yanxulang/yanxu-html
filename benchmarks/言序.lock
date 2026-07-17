@@ -1,0 +1,24 @@
+lock_version = 2
+manifest_checksum = "d3dc54b8d236b8a8f236c4c367ec19e558a275eb740f3d94083cb79e88759767"
+target = "aarch64-apple-darwin"
+generator = "1.1.12"
+
+[root_dependencies]
+yanxu-html = "yanxu-html@0.1.1#a5b4b144f221-846381ac312a4b07"
+
+[root_dev_dependencies]
+
+[[package]]
+id = "yanxu-html@0.1.1#a5b4b144f221-846381ac312a4b07"
+name = "yanxu-html"
+version = "0.1.1"
+source = "path:.."
+checksum = "846381ac312a4b07ead6029a134d3071fca7af32d32972b4e1c8a96951e4d304"
+entry = "src/言序HTML.yx"
+target = "aarch64-apple-darwin"
+minimum_yanxu = ">=1.1.5"
+
+[package.dependencies]
+
+[package.exports]
+"默认" = "src/言序HTML.yx"
