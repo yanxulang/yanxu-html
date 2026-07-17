@@ -1,0 +1,84 @@
+引「../src/言序HTML.yx」为 HTML；
+
+引「标准:测试」为 测试；
+
+法 非法标签（） 则
+    HTML.元素（「1div」，【】，【】）；
+    归 空；
+终
+
+法 逃逸标签（） 则
+    HTML.元素（「div>script」，【】，【】）；
+    归 空；
+终
+
+法 非法属性（） 则
+    HTML.属性（「data=x」，「值」）；
+    归 空；
+终
+
+法 数据地址（） 则
+    HTML.属性（「src」，「data:text/html,<script>」）；
+    归 空；
+终
+
+法 未知协议（） 则
+    HTML.属性（「href」，「ftp://example.test/file」）；
+    归 空；
+终
+
+法 空白混淆（） 则
+    HTML.属性（「href」，「java\nscript:alert(1)」）；
+    归 空；
+终
+
+法 空元素子项（） 则
+    HTML.元素（「br」，【】，【HTML.文字（「错误」）】）；
+    归 空；
+终
+
+法 空元素追加（） 则
+    HTML.元素（「img」，【HTML.属性（「src」，「/image.png」）】，【】）.添子（HTML.文字（「错误」））；
+    归 空；
+终
+
+法 须失败（动作：法，说明：文）：空 则
+    令 已失败：理 为 假；
+    试 则
+        动作（）；
+    救 所误 则
+        置 已失败 为 真；
+    终
+    测试.断言（已失败，说明）；
+    归 空；
+终
+
+测试.相等（HTML.元素（「x-card」，【HTML.属性（「data-id」，「42」），HTML.属性（「aria-label」，「卡片」）】，【】）.渲染（），「<x-card data-id="42" aria-label="卡片"></x-card>」）；
+
+测试.相等（HTML.属性（「href」，「/path?q=1#part」）.渲染（），「 href="/path?q=1#part"」）；
+
+测试.相等（HTML.属性（「HREF」，「HTTPS://example.test/docs」）.渲染（），「 HREF="HTTPS://example.test/docs"」）；
+
+测试.相等（HTML.属性（「href」，「mailto:user@example.test」）.渲染（），「 href="mailto:user@example.test"」）；
+
+测试.相等（HTML.属性（「href」，「tel:+8610000」）.渲染（），「 href="tel:+8610000"」）；
+
+测试.相等（HTML.属性（「href」，「#section」）.渲染（），「 href="#section"」）；
+
+测试.相等（HTML.属性（「title」，「javascript:只是文字」）.渲染（），「 title="javascript:只是文字"」）；
+
+须失败（非法标签，「标签名必须以 ASCII 字母开头」）；
+
+须失败（逃逸标签，「标签名不得包含关闭符号」）；
+
+须失败（非法属性，「属性名不得包含等号」）；
+
+须失败（数据地址，「URL 属性必须拒绝 data 协议」）；
+
+须失败（未知协议，「URL 属性必须拒绝未知协议」）；
+
+须失败（空白混淆，「URL 属性必须拒绝空白混淆」）；
+
+须失败（空元素子项，「空元素构造时不得包含子节点」）；
+
+须失败（空元素追加，「空元素构造后不得追加子节点」）；
